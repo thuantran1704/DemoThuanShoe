@@ -35,7 +35,7 @@ class Obj2 {
 // @route       GET /api/statistic
 // @access      Private/Admin
 const statisticProductSold = asyncHandler(async (req, res) => {
-    const products = await Product.find({ sold: { $gte: 1 } }).sort("-sold")
+    const products = await Product.find({ sold: { $gte: 1 } }).sort("-sold").limit(10)
     var array = []
     if (products) {
         for (let i = 0; i < products.length; i++) {
@@ -87,6 +87,7 @@ const statisticProductBetween = asyncHandler(async (req, res) => {
             }]
         };
         const orders = await Order.find(query)
+        var sum = 0
         var arrId = []
         var array = []
         var array2 = []
@@ -94,11 +95,12 @@ const statisticProductBetween = asyncHandler(async (req, res) => {
         var temp = 0
         if (orders) {
             for (let i = 0; i < orders.length; i++) {
+                sum += orders[i].totalPrice
                 const obj = new Obj1
                 obj.orderItems = orders[i].orderItems
                 array.push(obj)
             }
-
+            
             for (let j = 0; j < array.length; j++) {
                 for (let k = 0; k < array[j].orderItems.length; k++) {
                     const obj1 = new Obj11
@@ -108,7 +110,7 @@ const statisticProductBetween = asyncHandler(async (req, res) => {
                     array2.push(obj1)
                 }
             }
-           
+
             for (let a = 0; a < array2.length; a++) {
                 temp = arrId.findIndex(ab => ab === array2[a].id.toString())
 
@@ -123,7 +125,16 @@ const statisticProductBetween = asyncHandler(async (req, res) => {
                     result[temp].sold += Number(array2[a].qty)
                 }
             }
-            res.json(result)
+
+            result.sort(function (a, b) {
+                return b.sold - a.sold;
+            });
+
+            const rs = {
+                result : result,
+                sum : sum
+            }
+            res.json(rs)
         } else {
             res.status(404)
             throw new Error('Statistic error')

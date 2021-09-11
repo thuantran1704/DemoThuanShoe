@@ -35,9 +35,9 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 })
 
-if (process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'))
-}
+// if (process.env.NODE_ENV === 'development') {
+//     app.use(morgan('dev'))
+// }
 
 app.use('/api/products', productRoutes)
 app.use('/api/users', userRoutes)
